@@ -10,7 +10,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from .models import CustomUser, OTP
-from .serializers import RegisterSerializer, VerifyOTPSerializer
+from .serializers import RegisterSerializer, VerifyOTPSerializer, LoginSerializer
+from django.contrib.auth.hashers import check_password
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class RegisterView(APIView):
 
@@ -111,3 +113,123 @@ class VerifyRegisterOTPView(APIView):
 
         return Response({'message':'email verified successfully, you can now login to your account.'},
                         status=status.HTTP_200_OK)
+    
+
+class LoginView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self,request):
+
+        serializer = LoginSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+        email = serializer.validated_data['email']
+        password = serializer.validated_data['password']
+
+        try:
+            user = CustomUser.objects.get(email=email)
+
+        except CustomUser.DoesNotExist:
+            return Response(
+                {'error':'no account found with this email'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        if not user.is_active:
+            return Response({
+                'error':"account is not verified. please verify your email id first."
+            },
+            status=status.HTTP_400_BAD_REQUEST)
+        
+        if not check_password(password,user.password):
+            return Response(
+                {"error":"Incorrect Password"},status=status.HTTP_400_BAD_REQUEST
+            )
+
+        raw_otp = str(secrets.randbelow(900000)+100000)
+        otp_hash = hashlib.sha256(raw_otp.encode('utf-8')).hexdigest()
+
+        OTP.objects.filter(
+            user = user,
+            purpose = OTP.Purpose.LOGIN,
+            is_used = False
+        ).delete()
+
+        OTP.objects.create(
+            user = user,
+            otp_hash = otp_hash,
+            purpose = OTP.Purpose.LOGIN,
+            expires_at = timezone.now() + timedelta(minutes=5)
+        )
+
+        send_mail(
+            subject= 'verify the otp for login',
+            message= 'your otp for login is :{raw_otp}\n\nThis otp is valid for 5 minutes.',
+            from_email= None,
+            recipient_list=[user.email],
+            fair_silently = False,
+        )
+
+        return Response({
+            'message':'otp sent to your email.',
+            'email':user.email,
+        },status=status.HTTP_200_OK)
+    
+
+class VerifyLoginOTPView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self,request):
+        serializer = LoginSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+        email = serializer.validated_data['email']
+        otp = serializer.validated_data['otp']
+
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {'error': 'No account found with this email.'},
+                status=status.HTTP_404_NOT_FOUND)
+        
+        otp_hash   = hashlib.sha256(otp.encode('utf-8')).hexdigest()
+        otp_record = OTP.objects.filter(
+            user     = user,
+            otp_hash = otp_hash,
+            purpose  = OTP.Purpose.LOGIN,
+            is_used  = False
+        ).first()
+        if not otp_record:
+            return Response(
+                {'error':'invalid otp'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if timezone.now() > otp_record.expires_at:
+            return Response(
+                {'error':'otp has expired. please login again'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        otp_record.is_used = True
+        otp_record.used_at = timezone.now()
+        otp_record.save(update_fields=['is_used','used_at'])
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                'message':'login successfull',
+                'access_token':str(refresh.access_token),
+                'refresh_token':str(refresh),
+                'user':{
+                    'id'        : user.id,
+                    'full_name' : user.full_name,
+                    'email'     : user.email,
+                    'role'      : user.role,
+                }   
+            },status=status.HTTP_200_OK
+        )
