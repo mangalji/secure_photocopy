@@ -6,6 +6,7 @@ class RegisterSerializer(serializers.Serializer):
     full_name = serializers.CharField(max_length=100)
     email = serializers.EmailField()
     phone = serializers.CharField(max_length=15)
+    address = serializers.CharField(required=False,allow_blank=True)
     password = serializers.CharField(min_length=8,write_only=True)
     confirm_password = serializers.CharField(min_length=8,write_only=True)
     role = serializers.ChoiceField(choices=CustomUser.Role.choices)
@@ -41,7 +42,13 @@ class RegisterSerializer(serializers.Serializer):
             full_name = data['full_name'],
             email = data['email'],
             phone = data['phone'],
+            address = data['address'],
             password = data['password'],
             role = data['role'],
         )
         return user
+    
+class VerifyOTPSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+    otp = serializers.CharField(min_length=6,max_length=6)
