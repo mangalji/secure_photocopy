@@ -8,11 +8,12 @@ from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import CustomUser, OTP
-from .serializers import RegisterSerializer, VerifyOTPSerializer, LoginSerializer
+from .serializers import RegisterSerializer, VerifyOTPSerializer, LoginSerializer, LogoutSerializer
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 class RegisterView(APIView):
 
@@ -142,7 +143,7 @@ class LoginView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST)
         
-        if not check_password(password,user.password):
+        if not user.check_password(password):
             return Response(
                 {"error":"Incorrect Password"},status=status.HTTP_400_BAD_REQUEST
             )
@@ -165,10 +166,10 @@ class LoginView(APIView):
 
         send_mail(
             subject= 'verify the otp for login',
-            message= 'your otp for login is :{raw_otp}\n\nThis otp is valid for 5 minutes.',
+            message= f'your otp for login is :{raw_otp}\n\nThis otp is valid for 5 minutes.',
             from_email= None,
             recipient_list=[user.email],
-            fair_silently = False,
+            fail_silently = False,
         )
 
         return Response({
@@ -182,7 +183,7 @@ class VerifyLoginOTPView(APIView):
     permission_classes = [AllowAny]
 
     def post(self,request):
-        serializer = LoginSerializer(data=request.data)
+        serializer = VerifyOTPSerializer(data=request.data)
         
         if not serializer.is_valid():
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
@@ -226,10 +227,65 @@ class VerifyLoginOTPView(APIView):
                 'access_token':str(refresh.access_token),
                 'refresh_token':str(refresh),
                 'user':{
-                    'id'        : user.id,
+                    'id'        : user.user_id,
                     'full_name' : user.full_name,
                     'email'     : user.email,
                     'role'      : user.role,
                 }   
             },status=status.HTTP_200_OK
         )
+    
+class LogoutView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self,request):
+
+        serializer = LogoutSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+        refresh_token = serializer.validated_data['refresh_token']
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except TokenError:
+            return Response(
+                {'error':'Invalid or blacklisted token.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        return Response(
+            {'message':'logged out successfully.'},
+            status=status.HTTP_200_OK
+        )
+    
+class TokenRefreshView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self,request):
+
+        refresh_token = request.data.get['refresh_token']
+
+        if not refresh_token:
+            return Response(
+                {'error':'Refresh token is required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            token = RefreshToken(refresh_token)
+            access_token = str(token.access_token)
+        except TokenError:
+            return Response(
+                {'error':'invalid or expired refresh token. Please login again.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        return Response(
+            {'access_token':access_token},
+            status=status.HTTP_200_OK
+        )
+    
