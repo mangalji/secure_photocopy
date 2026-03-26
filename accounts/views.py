@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import CustomUser, OTP
 from .serializers import RegisterSerializer, VerifyOTPSerializer, LoginSerializer, LogoutSerializer
+from .serializers import ResendOTPSerializer, ResetPasswordSerializer, ForgotPasswordSerializer
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
@@ -261,31 +262,172 @@ class LogoutView(APIView):
             status=status.HTTP_200_OK
         )
     
-class TokenRefreshView(APIView):
+class ResendOTPView(APIView):
 
     permission_classes = [AllowAny]
 
     def post(self,request):
 
-        refresh_token = request.data.get['refresh_token']
+        serializer = ResendOTPSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+        email = serializer.validated_data['email']
+        purpose = serializer.validated_data['purpose']
 
-        if not refresh_token:
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
             return Response(
-                {'error':'Refresh token is required.'},
+                {'error':'no account find with this mail id.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        if purpose == 'registration' and user.is_active:
+            return Response(
+                {'error':'account is already verified.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        try:
-            token = RefreshToken(refresh_token)
-            access_token = str(token.access_token)
-        except TokenError:
+        if purpose == 'login' and user.is_active:
             return Response(
-                {'error':'invalid or expired refresh token. Please login again.'},
-                status=status.HTTP_401_UNAUTHORIZED
+                {'error':'account is not verified yet.'},
+                status=status.HTTP_400_BAD_REQUEST
             )
         
+        OTP.objects.filter(
+            user = user,
+            purpose = purpose,
+            is_used = False
+        ).delete()
+
+        raw_otp = str(secrets.randbelow(900000)+100000)
+        otp_hash = hashlib.sha256(raw_otp.encode('utf-8')).hexdigest()
+
+        OTP.objects.create(
+            user = user,
+            otp_hash = otp_hash,
+            purpose = purpose,
+            expires_at = timezone.now() + timedelta(minutes=5)
+        )
+
+        send_mail(
+            subject= 'verify resend otp',
+            message = f'Your new OTP is: {raw_otp}\n\nThis OTP is valid for 5 minutes.',
+            from_email = None,
+            recipient_list= [user.email],
+            fail_silently= False,
+        )
+
         return Response(
-            {'access_token':access_token},
+            {'message':'otp resent successfully.',
+             'email':user.email,},
+             status=status.HTTP_200_OK
+        )
+    
+class ForgotPasswordView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self,request):
+        serializer = ForgotPasswordSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+        email = serializer.validated_data['email']
+
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {'error':'no account found with this mail.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        if not user.is_active:
+            return Response(
+                {'error':'account is not verified. please verify your email firstly.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        OTP.objects.filter(
+            user = user,
+            purpose = OTP.Purpose.FORGOT_PASSWORD,
+            is_used = False
+        ).delete()
+
+        raw_otp = str(secrets.randbelow(900000)+100000)
+        otp_hash = hashlib.sha256(raw_otp.encode('utf-8')).hexdigest()
+
+        OTP.objects.create(
+            user = user,
+            otp_hash = otp_hash,
+            purpose = OTP.Purpose.FORGOT_PASSWORD,
+            expires_at = timezone.now() + timedelta(minutes=5)
+        )
+
+        send_mail(
+            subject= 'verify otp for forgot password',
+            message = f'your otp for reset the password is{raw_otp}\n\nThis OTP is valid for 5 minutes.',
+            from_email= None,
+            recipient_list=['user.email'],
+            fail_silently=False,
+        )
+
+        return Response(
+            {'message':'password reset otp sent to your email.',
+             'email':user.email},
+             status=status.HTTP_200_OK
+        )
+    
+class ResetPasswordView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self,request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+        email = serializer.validated_data['email']
+        otp = serializer.validated_data['otp']
+        new_password = serializer.validated_data['new_password']
+
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {'error':'no account found with this email.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        otp_hash = hashlib.sha256(otp.encode('utf-8')).hexdigest()
+        otp_record = OTP.objects.filter(
+            user = user,
+            otp_hash = otp_hash,
+            purpose = OTP.Purpose.FORGOT_PASSWORD,
+            is_used = False,
+        ).first()
+
+        if not otp_record:
+            return Response(
+                {'error':'invalid otp'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if timezone.now() > otp_record.expires_at:
+            return Response(
+                {'error':'otp has expired. please request for new otp.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        otp_record.is_used = True
+        otp_record.used_at = timezone.now()
+        otp_record.save(update_fields=['is_used','used_at'])
+        user.set_password(new_password)
+        user.save(update_fields=['password'])
+
+        return Response(
+            {'message':'password reset successfully. you can now login.'},
             status=status.HTTP_200_OK
         )
     

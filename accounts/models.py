@@ -83,6 +83,7 @@ class OTP(models.Model):
         REGISTRATION = 'registration', 'Registration'
         LOGIN        = 'login',        'Login'
         MFA_SETUP    = 'mfa_setup',    'MFA Setup'
+        FORGOT_PASSWORD = 'forgot_password', 'Forgot Password'
 
     class Meta:
         db_table = 'otp'
