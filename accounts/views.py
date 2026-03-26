@@ -9,12 +9,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import CustomUser, OTP
+from .models import CustomUser, OTP, Shops
 from .serializers import RegisterSerializer, VerifyOTPSerializer, LoginSerializer, LogoutSerializer
 from .serializers import ResendOTPSerializer, ResetPasswordSerializer, ForgotPasswordSerializer
+from .serializers import ShopRegistrationSerializer, ShopkeeperLoginSerializer, ShopsSerializer
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.generics import ListAPIView
 
 class RegisterView(APIView):
 
@@ -370,7 +372,7 @@ class ForgotPasswordView(APIView):
             subject= 'verify otp for forgot password',
             message = f'your otp for reset the password is{raw_otp}\n\nThis OTP is valid for 5 minutes.',
             from_email= None,
-            recipient_list=['user.email'],
+            recipient_list=[user.email],
             fail_silently=False,
         )
 
@@ -430,4 +432,115 @@ class ResetPasswordView(APIView):
             {'message':'password reset successfully. you can now login.'},
             status=status.HTTP_200_OK
         )
+
+class ShopRegisterView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self,request):
+        user = request.user
+
+        if user.role != CustomUser.Role.SHOPKEEPER:
+            return Response(
+                {'error':'only shopkeepers can register in shops'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer = ShopsSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,status=status.HTTP_400_BAD_REQUEST
+                )
+        serializer.save(shopkeeper=user)
+        
+        # shop = serializer.save(shopkeeper=user)
+        return Response(
+            {
+                'message':'shop registered successfully',
+                'shop': serializer.data,
+            }
+            ,status=status.HTTP_201_CREATED
+        )
     
+class ShopListView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        shops = Shops.objects.filter(is_active=True)
+        city = request.query_params.get('city')
+        if city:
+            shops = shops.filter(city__icontains=city)
+        
+        serializer = ShopsSerializer(shops,many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    
+class ShopDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request,shop_id):
+        try:
+            shop = Shops.objects.get(shop_id=shop_id,is_active=True)
+        except Shops.DoesNotExist:
+            return Response(
+                {'error':'shop not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        serializer = ShopsSerializer(shop)
+        return Response(
+            serializer.data,status=status.HTTP_200_OK
+        )
+    
+class ShopUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self,request,shop_id):
+        try:
+            shop = Shops.objects.get(shop_id=shop_id)
+        except Shops.DoesNotExist:
+            return Response(
+                {'error':'shop not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        if shop.shopkeeper != request.user:
+            return Response(
+                {'error':'you are not the owner of this shop.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer = ShopsSerializer(shop,data=request.data,partial=True)
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer.save()
+        return Response(
+            {'message':'shop updated successfully',
+             'shop':'serializer.data',},
+             status=status.HTTP_200_OK
+        )
+    
+class ShopDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self,request,shop_id):
+        try:
+            shop = Shops.objects.get(shop_id=shop_id)
+        except Shops.DoesNotExist:
+            return Response(
+                {'error':'shop not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        if shop.shopkeeper != request.user:
+            return Response(
+                {'error':'you are not the owner of this shop.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        shop.is_active = False
+        shop.save(update_fields=['is_active'])
+
+        return Response(
+            {'message':'shop deleted successfully.'},
+            status=status.HTTP_200_OK
+        )

@@ -1,13 +1,23 @@
 from django.urls import path
 from .views import RegisterView, VerifyRegisterOTPView, LoginView, VerifyLoginOTPView
 from .views import LogoutView, ResendOTPView, ForgotPasswordView, ResetPasswordView
+from .views import ShopRegisterView, ShopDeleteView, ShopDetailView, ShopListView, ShopUpdateView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
-    path('register/',RegisterView.as_view(),name='register'),
-    path('verify-register-otp/',VerifyRegisterOTPView.as_view(),name='verify_register_otp'),
-    path('login/',LoginView.as_view(),name='login'),
-    path('verify-login-otp/',VerifyLoginOTPView.as_view(),name='verify_login_otp'),
-    path('logout/',LogoutView.as_view(),name='logout'),
-    path('token/refresh/',TokenRefreshView.as_view(),name='token_refresh'),
+    path('auth/register/',RegisterView.as_view(),name='register'),
+    path('auth/verify-register-otp/',VerifyRegisterOTPView.as_view(),name='verify_register_otp'),
+    path('auth/login/',LoginView.as_view(),name='login'),
+    path('auth/verify-login-otp/',VerifyLoginOTPView.as_view(),name='verify_login_otp'),
+    path('auth/logout/',LogoutView.as_view(),name='logout'),
+    path('auth/token/refresh/',TokenRefreshView.as_view(),name='token_refresh'),
+    path('auth/resend-otp/',ResendOTPView.as_view(),name='resend_otp'),
+    path('auth/forgot-password/',ForgotPasswordView.as_view(),name='forgot_password'),
+    path('auth/reset-password',ResetPasswordView.as_view(),name='reset_password'),
+    path('shop-register/',ShopRegisterView.as_view(),name='shop_register'),
+    path('shops/list/',ShopListView.as_view(),name='shop_list'),
+    path('shops/<int:shop_id>/',ShopDetailView.as_view(),name='shop_detail'),
+    path('shops/<int:shop_id>/update/',ShopUpdateView.as_view(),name='shop_update'),
+    path('shops/<int:shop_id>',ShopDeleteView.as_view(),name='shop_delete'),
 ]
+

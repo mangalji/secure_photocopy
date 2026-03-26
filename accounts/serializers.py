@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomUser, Shops
 
 class RegisterSerializer(serializers.Serializer):
 
@@ -85,3 +85,12 @@ class ResetPasswordSerializer(serializers.Serializer):
                 {'confirm_password':'passwords do not match'}
             )
         return data
+    
+class ShopsSerializer(serializers.ModelSerializer):
+    
+    created_at = serializers.DateField(read_only=True,source='created_at.data')
+
+    class Meta:
+        model = Shops
+        fields = ['shop_id','shop_name','shop_address','city','shop_license_no','is_active','created_at']
+        read_only_fields = ['shop_id','is_active','created_at']
