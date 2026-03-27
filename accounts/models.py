@@ -47,8 +47,11 @@ class Shops(models.Model):
 
     class Meta:
         db_table = 'shops'
+
     shopkeeper = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name='shops')
     shop_name = models.CharField(max_length=100)
+    shop_email = models.EmailField(unique=True,null=True)
+    shop_phone = models.CharField(max_length=15,unique=True,null=True)
     shop_address = models.TextField()
     city = models.CharField(max_length=100,)
     shop_license_no = models.CharField(max_length=200,unique=True)

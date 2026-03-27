@@ -12,7 +12,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import CustomUser, OTP, Shops
 from .serializers import RegisterSerializer, VerifyOTPSerializer, LoginSerializer, LogoutSerializer
 from .serializers import ResendOTPSerializer, ResetPasswordSerializer, ForgotPasswordSerializer
-from .serializers import ShopRegistrationSerializer, ShopkeeperLoginSerializer, ShopsSerializer
+from .serializers import ShopsSerializer
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
@@ -29,6 +29,11 @@ class RegisterView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)  
         
+        email = serializer.validated_data['email']
+        phone = serializer.validated_data['phone']
+        CustomUser.objects.filter(email=email,is_active=False).delete()
+        CustomUser.objects.filter(phone=phone,is_active=False).delete()
+
         user = serializer.save()
 
         raw_otp = str(secrets.randbelow(900000)+100000)
@@ -50,7 +55,7 @@ class RegisterView(APIView):
         send_mail(
             subject= 'verify your account',
             message = f'your OTP for registration is: {raw_otp}\n\nThis OTP is valid for only 5 minutes.',
-            from_email = None,
+            from_email = 'owner.petwala@gmail.com',
             recipient_list = [user.email],
             fail_silently=False,
         )
@@ -453,7 +458,6 @@ class ShopRegisterView(APIView):
                 )
         serializer.save(shopkeeper=user)
         
-        # shop = serializer.save(shopkeeper=user)
         return Response(
             {
                 'message':'shop registered successfully',
@@ -480,7 +484,7 @@ class ShopDetailView(APIView):
 
     def get(self,request,shop_id):
         try:
-            shop = Shops.objects.get(shop_id=shop_id,is_active=True)
+            shop = Shops.objects.get(id=shop_id,is_active=True)
         except Shops.DoesNotExist:
             return Response(
                 {'error':'shop not found'},
@@ -497,7 +501,7 @@ class ShopUpdateView(APIView):
 
     def put(self,request,shop_id):
         try:
-            shop = Shops.objects.get(shop_id=shop_id)
+            shop = Shops.objects.get(id=shop_id)
         except Shops.DoesNotExist:
             return Response(
                 {'error':'shop not found'},
@@ -526,7 +530,7 @@ class ShopDeleteView(APIView):
 
     def delete(self,request,shop_id):
         try:
-            shop = Shops.objects.get(shop_id=shop_id)
+            shop = Shops.objects.get(id=shop_id)
         except Shops.DoesNotExist:
             return Response(
                 {'error':'shop not found'},

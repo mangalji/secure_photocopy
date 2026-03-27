@@ -13,14 +13,14 @@ class RegisterSerializer(serializers.Serializer):
 
     def check_email(self,value):
         
-        if CustomUser.objects.filter(email=value).exists():
+        if CustomUser.objects.filter(email=value,is_active=True).exists():
             raise serializers.ValidationError("this email is already registered with us.")
         
         return value.lower().strip()
     
     def check_phone(self,value):
 
-        if CustomUser.objects.filter(phone=value).exists():
+        if CustomUser.objects.filter(phone=value,is_active=True).exists():
             raise serializers.ValidationError("This phone number is already registered with us.")
         
         return value.strip()
@@ -89,8 +89,19 @@ class ResetPasswordSerializer(serializers.Serializer):
 class ShopsSerializer(serializers.ModelSerializer):
     
     created_at = serializers.DateField(read_only=True,source='created_at.data')
+    shopkeeper_name = serializers.CharField(source='shopkeeper.full_name',read_only=True)
 
     class Meta:
         model = Shops
-        fields = ['shop_id','shop_name','shop_address','city','shop_license_no','is_active','created_at']
-        read_only_fields = ['shop_id','is_active','created_at']
+        fields = [
+            'id',
+            'shopkeeper',
+            'shop_name',
+            'shop_email',
+            'shop_phone',
+            'shop_address',
+            'city',
+            'shop_license_no',
+            'is_active',
+            'created_at']
+        read_only_fields = ['id','is_active','created_at']
