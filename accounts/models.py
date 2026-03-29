@@ -21,7 +21,7 @@ class CustomUser(AbstractBaseUser):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15,unique=True)
     role = models.CharField(max_length=50,choices=Role.choices)
-    password = models.CharField(max_length=100)
+    password = models.CharField(max_length=128)
     is_email_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -35,7 +35,7 @@ class CustomUser(AbstractBaseUser):
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['fullname','role']
+    REQUIRED_FIELDS = ['full_name','role']
 
 
     def __str__(self):
@@ -179,7 +179,7 @@ class PrintSession(models.Model):
 
     class SessionStatus(models.TextChoices):
         ACTIVE = 'active', 'Active'
-        PENDING = 'pending', 'Pending'
+        COMPLETED = 'completed', 'Completed'
         FAILED = 'failed', 'Failed'
 
     request = models.OneToOneField(PrintRequest,on_delete=models.CASCADE,related_name='session')

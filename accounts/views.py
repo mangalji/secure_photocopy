@@ -85,7 +85,7 @@ class VerifyRegisterOTPView(APIView):
         try:
             user = CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:
-            return Response({"error":"No account found with this email"},)
+            return Response({"error":"No account found with this email"},status=status.HTTP_404_NOT_FOUND)
         
         if user.is_active:
             return Response({
@@ -295,7 +295,7 @@ class ResendOTPView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        if purpose == 'login' and user.is_active:
+        if purpose == 'login' and not user.is_active:
             return Response(
                 {'error':'account is not verified yet.'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -521,7 +521,7 @@ class ShopUpdateView(APIView):
         serializer.save()
         return Response(
             {'message':'shop updated successfully',
-             'shop':'serializer.data',},
+             'shop':serializer.data,},
              status=status.HTTP_200_OK
         )
     

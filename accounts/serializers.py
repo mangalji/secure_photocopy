@@ -11,14 +11,14 @@ class RegisterSerializer(serializers.Serializer):
     confirm_password = serializers.CharField(min_length=8,write_only=True)
     role = serializers.ChoiceField(choices=CustomUser.Role.choices)
 
-    def check_email(self,value):
+    def validate_email(self,value):
         
         if CustomUser.objects.filter(email=value,is_active=True).exists():
             raise serializers.ValidationError("this email is already registered with us.")
         
         return value.lower().strip()
     
-    def check_phone(self,value):
+    def validate_phone(self,value):
 
         if CustomUser.objects.filter(phone=value,is_active=True).exists():
             raise serializers.ValidationError("This phone number is already registered with us.")
@@ -88,14 +88,14 @@ class ResetPasswordSerializer(serializers.Serializer):
     
 class ShopsSerializer(serializers.ModelSerializer):
     
-    created_at = serializers.DateField(read_only=True,source='created_at.data')
+    created_at = serializers.DateField(read_only=True,source='created_at.date')
     shopkeeper_name = serializers.CharField(source='shopkeeper.full_name',read_only=True)
 
     class Meta:
         model = Shops
         fields = [
             'id',
-            'shopkeeper',
+            'shopkeeper_name',
             'shop_name',
             'shop_email',
             'shop_phone',

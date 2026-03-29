@@ -13,11 +13,11 @@ urlpatterns = [
     path('auth/token/refresh/',TokenRefreshView.as_view(),name='token_refresh'),
     path('auth/resend-otp/',ResendOTPView.as_view(),name='resend_otp'),
     path('auth/forgot-password/',ForgotPasswordView.as_view(),name='forgot_password'),
-    path('auth/reset-password',ResetPasswordView.as_view(),name='reset_password'),
+    path('auth/reset-password/',ResetPasswordView.as_view(),name='reset_password'),
     path('shops/register/',ShopRegisterView.as_view(),name='shop_register'),
     path('shops/list/',ShopListView.as_view(),name='shop_list'),
     path('shops/<int:shop_id>/',ShopDetailView.as_view(),name='shop_detail'),
     path('shops/<int:shop_id>/update/',ShopUpdateView.as_view(),name='shop_update'),
-    path('shops/<int:shop_id>',ShopDeleteView.as_view(),name='shop_delete'),
+    path('shops/<int:shop_id>/delete/',ShopDeleteView.as_view(),name='shop_delete'),
 ]
 
