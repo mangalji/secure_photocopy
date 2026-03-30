@@ -2,6 +2,7 @@ from django.urls import path
 from .views import RegisterView, VerifyRegisterOTPView, LoginView, VerifyLoginOTPView
 from .views import LogoutView, ResendOTPView, ForgotPasswordView, ResetPasswordView
 from .views import ShopRegisterView, ShopDeleteView, ShopDetailView, ShopListView, ShopUpdateView
+from .views import DocumentUploadView, DocumentListView, DocumentDeleteView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -14,10 +15,15 @@ urlpatterns = [
     path('auth/resend-otp/',ResendOTPView.as_view(),name='resend_otp'),
     path('auth/forgot-password/',ForgotPasswordView.as_view(),name='forgot_password'),
     path('auth/reset-password/',ResetPasswordView.as_view(),name='reset_password'),
+    
     path('shops/register/',ShopRegisterView.as_view(),name='shop_register'),
     path('shops/list/',ShopListView.as_view(),name='shop_list'),
     path('shops/<int:shop_id>/',ShopDetailView.as_view(),name='shop_detail'),
     path('shops/<int:shop_id>/update/',ShopUpdateView.as_view(),name='shop_update'),
     path('shops/<int:shop_id>/delete/',ShopDeleteView.as_view(),name='shop_delete'),
+
+    path('documents/upload/',DocumentUploadView.as_view(),name='document_upload'),
+    path('documents/list/',DocumentListView.as_view(),name='document_list'),
+    path('documents/<int:document_id>/delete/',DocumentDeleteView.as_view(),name='document_delete'),
 ]
 
