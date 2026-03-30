@@ -1,6 +1,9 @@
 from dataclasses import field
 from rest_framework import serializers
-from .models import CustomUser, Shops, Document
+from django.contrib.auth import get_user_model
+from .models import Shops, Document, PrintRequest
+
+User = get_user_model()
 
 class RegisterSerializer(serializers.Serializer):
 
@@ -10,18 +13,18 @@ class RegisterSerializer(serializers.Serializer):
     address = serializers.CharField(required=False,allow_blank=True)
     password = serializers.CharField(min_length=8,write_only=True)
     confirm_password = serializers.CharField(min_length=8,write_only=True)
-    role = serializers.ChoiceField(choices=CustomUser.Role.choices)
+    role = serializers.ChoiceField(choices=User.Role.choices)
 
     def validate_email(self,value):
         
-        if CustomUser.objects.filter(email=value,is_active=True).exists():
+        if User.objects.filter(email=value,is_active=True).exists():
             raise serializers.ValidationError("this email is already registered with us.")
         
         return value.lower().strip()
     
     def validate_phone(self,value):
 
-        if CustomUser.objects.filter(phone=value,is_active=True).exists():
+        if User.objects.filter(phone=value,is_active=True).exists():
             raise serializers.ValidationError("This phone number is already registered with us.")
         
         return value.strip()
@@ -39,7 +42,7 @@ class RegisterSerializer(serializers.Serializer):
         
         data = self.validated_data
 
-        user = CustomUser.objects.create_user(
+        user = User.objects.create_user(
             full_name = data['full_name'],
             email = data['email'],
             phone = data['phone'],
@@ -131,3 +134,52 @@ class DocumentListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = ['id','doc_name','doc_type','uploaded_at','file_size_mb','is_deleted',]
+
+
+class PrintRequestCreateSerializer(serializers.Serializer):
+
+    shop_id = serializers.IntegerField()
+    document_id = serializers.IntegerField()
+    print_copies = serializers.IntegerField(min_value=1,default=1)
+    print_color = serializers.ChoiceField(choices= PrintRequest.PrintColor.choices,default = PrintRequest.PrintColor.BLACK_WHITE)
+    expiry_minutes = serializers.ChoiceField(choices=[15,30,60],default = 30)
+
+    def validate_shop(self,value):
+        if not Shops.objects.filter(id=value,is_active=True).exists():
+            raise serializers.ValidationError('shop not found or inactive')
+        return value
+    
+    def validate_document(self,value):
+        if not Document.objects.filter(id=value,is_deleted=False).exists():
+            raise serializers.ValidationError("document not found or deleted.")
+        return value
+    
+class PrintRequestListSerializer(serializers.Serializer):
+
+    shop_name = serializers.CharField(source='shops.shop_name',read_only=True)
+    document_name = serializers.CharField(source='documents.document_name',read_only=True)
+    requested_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M',read_only=True)
+    
+    class Meta:
+
+        model = PrintRequest
+        fields = [
+            'id',
+            'shop_name',
+            'document_name',
+            'status',
+            'print_copies',
+            'print_color',
+            'requested_at',
+            'token_expires_at',
+            'is_token_used',
+        ]
+
+class TokenAccessSerializer(serializers.Serializer):
+
+    access_token = serializers.UUIDField()
+
+class PrintConfirmSerializer(serializers.Serializer):
+
+    session_id = serializers.IntegerField()
+

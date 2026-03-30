@@ -2,7 +2,8 @@ from django.urls import path
 from .views import RegisterView, VerifyRegisterOTPView, LoginView, VerifyLoginOTPView
 from .views import LogoutView, ResendOTPView, ForgotPasswordView, ResetPasswordView
 from .views import ShopRegisterView, ShopDeleteView, ShopDetailView, ShopListView, ShopUpdateView
-from .views import DocumentUploadView, DocumentListView, DocumentDeleteView
+from .views import DocumentUploadView, DocumentListView, DocumentDeleteView, PrintRequestCreateView
+from .views import PrintRequestListView, PrintRequestCancleView, PrintConfirmView, PrintFailView, AccessDocumentView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -25,5 +26,14 @@ urlpatterns = [
     path('documents/upload/',DocumentUploadView.as_view(),name='document_upload'),
     path('documents/list/',DocumentListView.as_view(),name='document_list'),
     path('documents/<int:document_id>/delete/',DocumentDeleteView.as_view(),name='document_delete'),
-]
+
+    path('print-requests/lists/',PrintRequestListView.as_view(),name='print_request_list'),
+    path('print-requests/create/',PrintRequestCreateView.as_view(),name='print_request_create'),
+    path('print-requests/<int:request_id>/cancel/',PrintRequestCancleView.as_view(),name='print_request_cancle'),
+
+    path('print-sessions/access/',AccessDocumentView.as_view(),name='access_document'),
+    path('print-sessions/<int:session_id>/confirm/',PrintConfirmView.as_view(),name='print_confirm'),
+    path('print-sessions/<int:session_id>/fail/',PrintFailView.as_view(),name='print_fail'),
+
+    ]
 

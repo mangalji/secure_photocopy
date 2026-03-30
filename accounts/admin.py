@@ -1,15 +1,17 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Shops, Notification
+from .models import CustomUser, Shops, OTP, MFABackupCode, OAuthConnection, Document, PrintRequest, PrintSession, AuditLogs, Notification
 
-@admin.register(CustomUser)
-class CustomUserAdmin(UserAdmin):
+admin.site.register(CustomUser)
+admin.site.register(Shops)
+admin.site.register(OTP)
+admin.site.register(MFABackupCode)
+admin.site.register(OAuthConnection)
+admin.site.register(AuditLogs)
+admin.site.register(Document)
+admin.site.register(PrintRequest)
+admin.site.register(PrintSession)
+admin.site.register(Notification)
 
-    list_display = ('user_id','email','full_name','phone','role','is_active','is_email_verified','is_staff')
-    list_filter = ('role','is_active','is_email_verified','is_staff','is_superuser')
-    search_fields = ('email','full_name','phone')
-    ordering = ('-created_at',)
 
-    fieldsets = {
-        (None,{'fields':('email','password')}),
-    }
+

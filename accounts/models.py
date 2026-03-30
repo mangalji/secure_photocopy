@@ -25,7 +25,6 @@ class CustomUser(AbstractBaseUser):
     is_email_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
     mfa_secret = models.CharField(max_length=100,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_mfa_enabled = models.BooleanField(default=False)
