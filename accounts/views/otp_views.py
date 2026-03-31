@@ -1,5 +1,5 @@
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from accounts.serializers import VerifyOTPSerializer, ResendOTPSerializer
+from accounts.serializers.otp_serializers import VerifyOTPSerializer, ResendOTPSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model

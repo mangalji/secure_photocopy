@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from accounts.serializers import ForgotPasswordSerializer, ResetPasswordSerializer
+from accounts.serializers.resetpassword_serializers import ForgotPasswordSerializer, ResetPasswordSerializer
 from accounts.models import OTP
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model

@@ -3,7 +3,7 @@ from accounts.models import Notification
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from accounts.serializers import NotificationSerializer
+from accounts.serializers.notification_serializers import NotificationSerializer
 
 def create_notification(user, request_obj, noti_type, title, message):
     Notification.objects.create(
@@ -13,8 +13,6 @@ def create_notification(user, request_obj, noti_type, title, message):
         title=title,
         message=message
     )
-    
-    
 
 class NotificationListView(APIView):
     permission_classes = [IsAuthenticated]

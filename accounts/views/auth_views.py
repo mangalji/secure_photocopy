@@ -1,6 +1,6 @@
 from accounts.models import Shops, OTP
 from django.contrib.auth import get_user_model
-from accounts.serializers import RegisterSerializer, LoginSerializer, LogoutSerializer
+from accounts.serializers.auth_seralizer import RegisterSerializer, LoginSerializer, LogoutSerializer
 from rest_framework.views import APIView
 from django.core.mail import send_mail
 import secrets

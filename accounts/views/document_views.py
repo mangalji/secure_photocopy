@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from accounts.serializers import DocumentUploadSerializer, DocumentListSerializer
+from accounts.serializers.document_serializers import DocumentUploadSerializer, DocumentListSerializer
 from accounts.models import Document
 from rest_framework.response import Response
 from rest_framework import status
