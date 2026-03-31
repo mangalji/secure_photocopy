@@ -15,12 +15,24 @@ from .models import CustomUser, OTP, Shops, Document, PrintRequest, PrintSession
 from .serializers import RegisterSerializer, VerifyOTPSerializer, LoginSerializer, LogoutSerializer
 from .serializers import ResendOTPSerializer, ResetPasswordSerializer, ForgotPasswordSerializer
 from .serializers import ShopsSerializer, DocumentListSerializer, DocumentUploadSerializer
-from .serializers import PrintRequestCreateSerializer, PrintRequestListSerializer, TokenAccessSerializer, PrintConfirmSerializer
+from .serializers import PrintRequestCreateSerializer, PrintRequestListSerializer, TokenAccessSerializer, PrintConfirmSerializer, NotificationSerializer
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.generics import ListAPIView
 from django.conf import settings
+from django.db import transaction
+
+
+def create_notification(user, request_obj, noti_type, title, message):
+    Notification.objects.create(
+        user=user,
+        request=request_obj,
+        noti_type=noti_type,
+        title=title,
+        message=message
+    )
+
 
 class RegisterView(APIView):
 
@@ -568,7 +580,7 @@ class DocumentUploadView(APIView):
         serializer = DocumentUploadSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(
-                serializer.errors,stat=status.HTTP_400_BAD_REQUEST
+                serializer.errors,status=status.HTTP_400_BAD_REQUEST
             )
 
         file = serializer.validated_data['file']
@@ -607,7 +619,7 @@ class DocumentUploadView(APIView):
                 'message':'document uploaded successfully',
                 'document_id':document.id,
                 'doc_name':document.doc_name,
-                'file_size_mb':document.file_size,
+                'file_size_mb':document.file_size_mb,
                 'doc_type':document.doc_type,
                 'uploaded_at':document.uploaded_at.strftime('%Y-%m-%d %H:%M:%S'),
                 }, status=status.HTTP_201_CREATED
@@ -635,7 +647,7 @@ class DocumentListView(APIView):
 
 class DocumentDeleteView(APIView):
 
-    permission_classe = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def delete(self,request,document_id):
         try:
@@ -701,14 +713,30 @@ class PrintRequestCreateView(APIView):
             expires_at = token_expires_at,
         )
 
+        create_notification(
+            user=request.user,
+            request_obj=print_request,
+            noti_type=Notification.NotificationType.REQUEST_SENT,
+            title='Print request created',
+            message=f'Your print request #{print_request.id} has been created and sent to {shop.shop_name}.',
+        )
+
+        create_notification(
+            user=shop.shopkeeper,
+            request_obj=print_request,
+            noti_type=Notification.NotificationType.REQUEST_RECEIVED,
+            title='New print request received',
+            message=f'New print request #{print_request.id} is received from {request.user.full_name}.',
+        )
+
         return Response(
             {
                 "message":"Print request created successfully",
                 "request_id":print_request.id,
                 "access_token":str(print_request.access_token),
                 "shop_name":shop.shop_name,
-                "document_name":document.document_name,
-                "print_copies": print_request.print_copies,
+                "document_name":document.doc_name,
+                "print_copies": print_request.total_copies,
                 "print_color":print_request.print_color,
                 "status":print_request.status,
                 "token_expires_at":print_request.token_expires_at.strftime('%Y-%m-%d %H:%M'),
@@ -744,9 +772,15 @@ class PrintRequestCancleView(APIView):
 
     def post(self,request):
 
+        request_id = request.data.get('request_id')
+        if not request_id:
+            return Response(
+                {'error':'request_id is required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         try:
             print_request = PrintRequest.objects.get(
-                id = request.id,
+                id = request_id,
                 consumer = request.user
             )
         except PrintRequest.DoesNotExist:
@@ -818,6 +852,21 @@ class AccessDocumentView(APIView):
             print_request.status = PrintRequest.Status.PRINTING
             print_request.save(update_fields=['is_token_used','status'])
 
+            create_notification(
+                user=request.user,
+                request_obj=print_request,
+                noti_type=Notification.NotificationType.PRINTING,
+                title='Print started',
+                message=f'You started printing request #{print_request.id}.',
+            )
+            create_notification(
+                user=print_request.consumer,
+                request_obj=print_request,
+                noti_type=Notification.NotificationType.PRINTING,
+                title='Print in progress',
+                message=f'Your print request #{print_request.id} is being printed by {request.user.full_name}.',
+            )
+
             ip = (request.META.get('HTTP_X_FORWARDED_FOR','').split(',')[0].strip() or request.META.get('REMOTE_ADDR'))
             ua = request.META.get('HTTP_USER_AGENT','')
 
@@ -847,8 +896,8 @@ class AccessDocumentView(APIView):
                     "doc_type":document.doc_type,
                     "print_copies":print_request.total_copies,
                     "print_color":print_request.print_color,
-                    "file_url":request.build_absolute_url(
-                        settings.MEDIA_URL + document.enrypted_storage_ref
+                    "file_url":request.build_absolute_uri(
+                        settings.MEDIA_URL + document.encrypted_storage_ref
                     ),
                 },status=status.HTTP_200_OK
             )
@@ -885,6 +934,21 @@ class PrintConfirmView(APIView):
         print_request = session.request
         print_request.status = PrintRequest.Status.PRINTED
         print_request.save(update_fields=['status'])
+
+        create_notification(
+            user=print_request.consumer,
+            request_obj=print_request,
+            noti_type=Notification.NotificationType.PRINTED,
+            title='Print completed',
+            message=f'Your print request #{print_request.id} is completed and ready.',
+        )
+        create_notification(
+            user=request.user,
+            request_obj=print_request,
+            noti_type=Notification.NotificationType.PRINTED,
+            title='Print report',
+            message=f'Print request #{print_request.id} is marked as completed.',
+        )
 
         document = print_request.document
 
@@ -927,9 +991,50 @@ class PrintFailView(APIView):
         print_request        = session.request
         print_request.status = PrintRequest.Status.CANCELLED
         print_request.save(update_fields=['status'])
+
+        create_notification(
+            user=print_request.consumer,
+            request_obj=print_request,
+            noti_type=Notification.NotificationType.PRINT_FAILED,
+            title='Print failed',
+            message=f'Your print request #{print_request.id} could not be completed and is cancelled.',
+        )
+        create_notification(
+            user=request.user,
+            request_obj=print_request,
+            noti_type=Notification.NotificationType.PRINT_FAILED,
+            title='Print failed reported',
+            message=f'You marked print request #{print_request.id} as failed.',
+        )
         
         return Response(
             {'message': 'Print failure reported. Consumer can resend the request.'},
             status=status.HTTP_200_OK
-        )
-    
+        )    
+
+class NotificationListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+        serializer = NotificationSerializer(notifications, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class NotificationMarkReadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        notification_id = request.data.get('notification_id')
+        if not notification_id:
+            return Response({'error': 'notification_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            notification = Notification.objects.get(id=notification_id, user=request.user)
+        except Notification.DoesNotExist:
+            return Response({'error': 'notification not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        notification.is_read = True
+        notification.save(update_fields=['is_read'])
+
+        return Response({'message': 'notification marked as read.'}, status=status.HTTP_200_OK)    

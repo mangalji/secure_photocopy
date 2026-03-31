@@ -4,6 +4,7 @@ from .views import LogoutView, ResendOTPView, ForgotPasswordView, ResetPasswordV
 from .views import ShopRegisterView, ShopDeleteView, ShopDetailView, ShopListView, ShopUpdateView
 from .views import DocumentUploadView, DocumentListView, DocumentDeleteView, PrintRequestCreateView
 from .views import PrintRequestListView, PrintRequestCancleView, PrintConfirmView, PrintFailView, AccessDocumentView
+from .views import NotificationListView, NotificationMarkReadView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -34,6 +35,9 @@ urlpatterns = [
     path('print-sessions/access/',AccessDocumentView.as_view(),name='access_document'),
     path('print-sessions/<int:session_id>/confirm/',PrintConfirmView.as_view(),name='print_confirm'),
     path('print-sessions/<int:session_id>/fail/',PrintFailView.as_view(),name='print_fail'),
+
+    path('notifications/list/', NotificationListView.as_view(), name='notification_list'),
+    path('notifications/mark-read/', NotificationMarkReadView.as_view(), name='notification_mark_read'),
 
     ]
 

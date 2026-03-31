@@ -1,7 +1,7 @@
 from dataclasses import field
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Shops, Document, PrintRequest
+from .models import Shops, Document, PrintRequest, Notification
 
 User = get_user_model()
 
@@ -154,26 +154,26 @@ class PrintRequestCreateSerializer(serializers.Serializer):
             raise serializers.ValidationError("document not found or deleted.")
         return value
     
-class PrintRequestListSerializer(serializers.Serializer):
+class PrintRequestListSerializer(serializers.ModelSerializer):
 
-    shop_name = serializers.CharField(source='shops.shop_name',read_only=True)
-    document_name = serializers.CharField(source='documents.document_name',read_only=True)
-    requested_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M',read_only=True)
-    
+    shop_name = serializers.CharField(source='shop.shop_name', read_only=True)
+    document_name = serializers.CharField(source='document.doc_name', read_only=True)
+    requested_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M', read_only=True)
+
     class Meta:
-
         model = PrintRequest
         fields = [
             'id',
             'shop_name',
             'document_name',
             'status',
-            'print_copies',
+            'total_copies',
             'print_color',
             'requested_at',
             'token_expires_at',
             'is_token_used',
         ]
+
 
 class TokenAccessSerializer(serializers.Serializer):
 
@@ -182,4 +182,14 @@ class TokenAccessSerializer(serializers.Serializer):
 class PrintConfirmSerializer(serializers.Serializer):
 
     session_id = serializers.IntegerField()
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+
+    request_id = serializers.IntegerField(source='request.id', read_only=True)
+    notification_type = serializers.CharField(source='noti_type', read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = ['id', 'request_id', 'notification_type', 'title', 'message', 'is_read', 'created_at']
 
