@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from accounts.serializers.print_serializers import (
+from accounts.print.print_serializers import (
     PrintRequestCreateSerializer,
     PrintRequestListSerializer,
     PrintConfirmSerializer,
@@ -13,7 +13,7 @@ from accounts.models import PrintRequest, PrintSession, Shops, Notification, Doc
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from .notification_views import create_notification
+from accounts.notification.notification_views import create_notification
 import os
 from django.conf import settings
 from django.db import transaction

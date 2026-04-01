@@ -1,12 +1,12 @@
 from django.urls import path
-from accounts.views.auth_views import RegisterView, LoginView, LogoutView
-from accounts.views.shop_views import ShopRegisterView, ShopListView, ShopDetailView, ShopUpdateView, ShopDeleteView
-from accounts.views.document_views import DocumentUploadView, DocumentListView, DocumentDeleteView
-from accounts.views.resetpassword_views import ForgotPasswordView, ResetPasswordView, ChangePasswordView
-from accounts.views.notification_views import NotificationListView, NotificationMarkReadView, NotificationMarkAllReadView
-from accounts.views.otp_views import VerifyRegisterOTPView, VerifyLoginOTPView, ResendOTPView
-from accounts.views.print_views import PrintRequestCreateView, PrintRequestListView, PrintRequestCancleView, PrintConfirmView, AccessDocumentView, PrintFailView
-from accounts.views.profile_views import ProfileView, ProfileUpdateView
+from accounts.auth.auth_views import RegisterView, LoginView, LogoutView
+from accounts.shop.shop_views import ShopRegisterView, ShopListView, ShopDetailView, ShopUpdateView, ShopDeleteView
+from accounts.document.document_views import DocumentUploadView, DocumentListView, DocumentDeleteView
+from accounts.password.resetpassword_views import ForgotPasswordView, ResetPasswordView, ChangePasswordView
+from accounts.notification.notification_views import NotificationListView, NotificationMarkReadView, NotificationMarkAllReadView
+from accounts.otp.otp_views import VerifyRegisterOTPView, VerifyLoginOTPView, ResendOTPView
+from accounts.print.print_views import PrintRequestCreateView, PrintRequestListView, PrintRequestCancleView, PrintConfirmView, PrintFailView, AccessDocumentView
+from accounts.profile.profile_views import ProfileView, ProfileUpdateView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [

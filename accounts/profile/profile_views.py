@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from accounts.serializers.profile_serializers import ProfileSerializer, ProfileUpdateSerializer
+from accounts.profile.profile_serializers import ProfileSerializer, ProfileUpdateSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
