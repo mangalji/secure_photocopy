@@ -17,3 +17,16 @@ class ResetPasswordSerializer(serializers.Serializer):
                 {'confirm_password':'passwords do not match'}
             )
         return data
+
+class ChangePasswordSerializer(serializers.Serializer):
+
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(min_length=8,write_only=True)
+    confirm_password = serializers.CharField(min_length=8,write_only=True)
+
+    def validate_(self,data):
+
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError({"confirm_password":"password do not match."})
+        
+        return data

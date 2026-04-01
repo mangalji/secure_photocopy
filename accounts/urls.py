@@ -1,10 +1,12 @@
 from django.urls import path
-from .views import RegisterView, VerifyRegisterOTPView, LoginView, VerifyLoginOTPView
-from .views import LogoutView, ResendOTPView, ForgotPasswordView, ResetPasswordView
-from .views import ShopRegisterView, ShopDeleteView, ShopDetailView, ShopListView, ShopUpdateView
-from .views import DocumentUploadView, DocumentListView, DocumentDeleteView, PrintRequestCreateView
-from .views import PrintRequestListView, PrintRequestCancleView, PrintConfirmView, PrintFailView, AccessDocumentView
-from .views import NotificationListView, NotificationMarkReadView
+from accounts.views.auth_views import RegisterView, LoginView, LogoutView
+from accounts.views.shop_views import ShopRegisterView, ShopListView, ShopDetailView, ShopUpdateView, ShopDeleteView
+from accounts.views.document_views import DocumentUploadView, DocumentListView, DocumentDeleteView
+from accounts.views.resetpassword_views import ForgotPasswordView, ResetPasswordView, ChangePasswordView
+from accounts.views.notification_views import NotificationListView, NotificationMarkReadView, NotificationMarkAllReadView
+from accounts.views.otp_views import VerifyRegisterOTPView, VerifyLoginOTPView, ResendOTPView
+from accounts.views.print_views import PrintRequestCreateView, PrintRequestListView, PrintRequestCancleView, PrintConfirmView, AccessDocumentView, PrintFailView
+from accounts.views.profile_views import ProfileView, ProfileUpdateView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -38,6 +40,11 @@ urlpatterns = [
 
     path('notifications/list/', NotificationListView.as_view(), name='notification_list'),
     path('notifications/mark-read/', NotificationMarkReadView.as_view(), name='notification_mark_read'),
+    path('notifications/mark-read-all/',NotificationMarkAllReadView.as_view(),name='notification-marked-all-read'),
+
+    path('profile/',ProfileView.as_view(),name='profile'),
+    path('profile/update/',ProfileUpdateView.as_view(),name='profile-update'),
+    path('profile/change-password/',ChangePasswordView.as_view(),name='change-password'),
 
     ]
 

@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from accounts.serializers.resetpassword_serializers import ForgotPasswordSerializer, ResetPasswordSerializer
+from accounts.serializers.resetpassword_serializers import ForgotPasswordSerializer, ResetPasswordSerializer, ChangePasswordSerializer
 from accounts.models import OTP
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
@@ -117,5 +117,33 @@ class ResetPasswordView(APIView):
 
         return Response(
             {'message':'password reset successfully. you can now login.'},
+            status=status.HTTP_200_OK
+        )
+    
+class ChangePasswordView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self,request):
+
+        serializer = ChangePasswordSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+        data = serializer.validated_data
+        user = request.user
+
+        if not user.check_password(data['current_password']):
+            return Response(
+                {"error":"current pasword didn't match in our records."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user.set_password(data['new_password'])
+        user.save(update_fields=['password'])
+
+        return Response(
+            {"message":"password changed successfully. please login again."},
             status=status.HTTP_200_OK
         )

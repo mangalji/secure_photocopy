@@ -26,7 +26,7 @@ class NotificationListView(APIView):
 class NotificationMarkReadView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def post(self, request,):
         notification_id = request.data.get('notification_id')
         if not notification_id:
             return Response({'error': 'notification_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -40,3 +40,23 @@ class NotificationMarkReadView(APIView):
         notification.save(update_fields=['is_read'])
 
         return Response({'message': 'notification marked as read.'}, status=status.HTTP_200_OK)
+    
+class NotificationMarkAllReadView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self,request):
+        notification_id = request.data.get('notification_id')
+        if not notification_id:
+            return Response(
+                {"error":"notification id is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        Notification.objects.filter(
+            user = request.user,
+            is_read = False
+        ).update(is_read=True)
+        return Response(
+            {"message":"all notifications marked as read."},
+            status=status.HTTP_200_OK
+        )
