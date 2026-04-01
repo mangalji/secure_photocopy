@@ -2,10 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from accounts.shop.shop_serializers import ShopsSerializer
-from accounts.models import Shops
+from accounts.models.shop_models import Shops
 from rest_framework import status
 from rest_framework.response import Response
-
 
 User = get_user_model()
 

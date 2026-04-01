@@ -1,7 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Shops, OTP, MFABackupCode, OAuthConnection, Document, PrintRequest, PrintSession, AuditLogs, Notification
-
+from accounts.models.auth_models import CustomUser
+from accounts.models.auditlog_models import AuditLogs
+from accounts.models.document_models import Document
+from accounts.models.notification_models import Notification
+from accounts.models.otp_models import OTP, MFABackupCode, OAuthConnection
+from accounts.models.print_models import PrintRequest, PrintSession
+from accounts.models.shop_models import Shops
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):

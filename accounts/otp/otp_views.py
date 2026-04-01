@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework import status
-from accounts.models import OTP
+from accounts.models.otp_models import OTP
 import hashlib
 import secrets
 from rest_framework_simplejwt.tokens import RefreshToken

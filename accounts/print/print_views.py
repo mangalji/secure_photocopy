@@ -5,11 +5,13 @@ from accounts.print.print_serializers import (
     PrintConfirmSerializer,
     TokenAccessSerializer
 )
-
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from accounts.models import PrintRequest, PrintSession, Shops, Notification, Document
+from accounts.models.print_models import PrintRequest, PrintSession
+from accounts.models.shop_models import Shops
+from accounts.models.document_models import Document
+from accounts.models.notification_models import Notification
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta

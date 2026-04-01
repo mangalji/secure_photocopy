@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from accounts.models import Notification
+from accounts.models.notification_models import Notification
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status

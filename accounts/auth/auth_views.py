@@ -1,4 +1,5 @@
-from accounts.models import Shops, OTP
+from accounts.models.shop_models import Shops
+from accounts.models.otp_models import OTP
 from django.contrib.auth import get_user_model
 from accounts.auth.auth_seralizer import RegisterSerializer, LoginSerializer, LogoutSerializer
 from rest_framework.views import APIView
