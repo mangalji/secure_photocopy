@@ -203,13 +203,6 @@ class AccessDocumentView(APIView):
             print_request.save(update_fields=['is_token_used','status'])
 
             create_notification(
-                user=request.user,
-                request_obj=print_request,
-                noti_type=Notification.NotificationType.PRINTING,
-                title='Print started',
-                message=f'You started printing request #{print_request.id}.',
-            )
-            create_notification(
                 user=print_request.consumer,
                 request_obj=print_request,
                 noti_type=Notification.NotificationType.PRINTING,
