@@ -51,7 +51,7 @@ urlpatterns = [
 
     path('audit-logs/',AuditLogListView.as_view(),name='audit_logs'),
 
-    path('mfa/setup/',MFASetupView,name='mfa_setup'),
+    path('mfa/setup/',MFASetupView.as_view(),name='mfa_setup'),
     path('mfa/enable/',MFAEnableView.as_view(),name='mfa_enable'),
     path('mfa/disable/',MFADisableView.as_view(),name='mfa_disable'),
     path('mfa/login/verify/',MFALoginVerifyView.as_view(),name='mfa_login_verify'),
