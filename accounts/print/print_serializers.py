@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from accounts.models import Shops, Document, PrintRequest
+from accounts.models import Shops 
+from accounts.models import Document
+from accounts.models import PrintRequest
 
 class PrintRequestCreateSerializer(serializers.Serializer):
 

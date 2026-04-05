@@ -2,17 +2,17 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from accounts.otp.otp_serializers import VerifyOTPSerializer, ResendOTPSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.contrib.auth import get_user_model
+from accounts.models import CustomUser
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework import status
-from accounts.models.otp_models import OTP
+from accounts.models import OTP
 import hashlib
 import secrets
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
 
-User = get_user_model()
+User = CustomUser
 
 class VerifyRegisterOTPView(APIView):
 

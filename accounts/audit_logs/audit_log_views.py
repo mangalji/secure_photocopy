@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from accounts.models.auditlog_models import AuditLogs
+from accounts.models import AuditLogs
 from .audit_log_serializers import AuditLogSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated

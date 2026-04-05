@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models.otp_models import MFABackupCode
+from accounts.models import MFABackupCode
 
 class MFAVerifySerializer(serializers.Serializer):
 

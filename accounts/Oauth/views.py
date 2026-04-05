@@ -3,13 +3,13 @@ import requests
 from django.conf import settings
 from rest_framework.permissions import AllowAny
 from .serializers import OAuthGoogleSerializer, OAuthGithubSerializer
-from accounts.models.otp_models import OAuthConnection
+from accounts.models import OAuthConnection
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import get_user_model
+from accounts.models import CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
 
-User = get_user_model()
+User = CustomUser
 
 class OAuthGoogleView(APIView):
 

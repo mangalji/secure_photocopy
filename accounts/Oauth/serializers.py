@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models.otp_models import OAuthConnection
+from accounts.models import OAuthConnection
 
 class OAuthGoogleSerializer(serializers.Serializer):
     

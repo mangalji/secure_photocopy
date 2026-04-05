@@ -1,6 +1,6 @@
-from accounts.models.shop_models import Shops
-from accounts.models.otp_models import OTP
-from django.contrib.auth import get_user_model
+from accounts.models import Shops
+from accounts.models import OTP
+from accounts.models import CustomUser
 from accounts.auth.auth_seralizer import RegisterSerializer, LoginSerializer, LogoutSerializer
 from rest_framework.views import APIView
 from django.core.mail import send_mail
@@ -15,7 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
 
-User = get_user_model()
+User = CustomUser
 
 class RegisterView(APIView):
 

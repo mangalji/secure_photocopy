@@ -6,14 +6,14 @@ from io import BytesIO
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from accounts.models.otp_models import MFABackupCode
+from accounts.models import MFABackupCode
 import hashlib
 import secrets
 from .serializers import MFAVerifySerializer, MFALoginSerializer
-from django.contrib.auth import get_user_model
+from accounts.models import CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
 
-User = get_user_model()
+User = CustomUser
 
 class MFASetupView(APIView):
 

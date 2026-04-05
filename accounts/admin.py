@@ -1,12 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from accounts.models.auditlog_models import AuditLogs
+from accounts.models import AuditLogs
 from django.contrib.auth import get_user_model
-from accounts.models.document_models import Document
-from accounts.models.notification_models import Notification
-from accounts.models.otp_models import OTP, OAuthConnection, MFABackupCode
-from accounts.models.print_models import PrintRequest, PrintSession
-from accounts.models.shop_models import Shops
+from accounts.models import Document
+from accounts.models import Notification
+from accounts.models import OTP, OAuthConnection, MFABackupCode
+from accounts.models import PrintRequest, PrintSession
+from accounts.models import Shops
 
 User = get_user_model()
 

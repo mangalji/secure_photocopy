@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from accounts.password.resetpassword_serializers import ForgotPasswordSerializer, ResetPasswordSerializer, ChangePasswordSerializer
-from accounts.models.otp_models import OTP
+from accounts.models import OTP
 from rest_framework.response import Response
-from django.contrib.auth import get_user_model
+from accounts.models import CustomUser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from django.utils import timezone
@@ -11,7 +11,7 @@ import secrets
 import hashlib
 from django.core.mail import send_mail
 
-User = get_user_model()
+User = CustomUser
 
 class ForgotPasswordView(APIView):
 

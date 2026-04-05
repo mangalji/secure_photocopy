@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models.auditlog_models import AuditLogs
+from accounts.models import AuditLogs
 
 class AuditLogSerializer(serializers.Serializer):
 

@@ -8,11 +8,11 @@ from accounts.print.print_serializers import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from accounts.models.print_models import PrintRequest, PrintSession
-from accounts.models.shop_models import Shops
-from accounts.models.document_models import Document
-from accounts.models.notification_models import Notification
-from django.contrib.auth import get_user_model
+from accounts.models import PrintRequest, PrintSession
+from accounts.models import Shops
+from accounts.models import Document
+from accounts.models import Notification
+from accounts.models import CustomUser
 from django.utils import timezone
 from datetime import timedelta
 from accounts.notification.notification_views import create_notification
@@ -20,7 +20,7 @@ import os
 from django.conf import settings
 from django.db import transaction
 
-User = get_user_model()
+User = CustomUser
 
 
 class PrintRequestCreateView(APIView):

@@ -2,10 +2,10 @@ from rest_framework.views import APIView
 from accounts.profile.profile_serializers import ProfileSerializer, ProfileUpdateSerializer
 from rest_framework import status
 from rest_framework.response import Response
-from django.contrib.auth import get_user_model
+from accounts.models import CustomUser
 from rest_framework.permissions import IsAuthenticated
 
-User = get_user_model()
+User = CustomUser
 
 class ProfileView(APIView):
 
