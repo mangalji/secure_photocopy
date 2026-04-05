@@ -8,6 +8,9 @@ from accounts.otp.otp_views import VerifyRegisterOTPView, VerifyLoginOTPView, Re
 from accounts.print.print_views import PrintRequestCreateView, PrintRequestListView, PrintRequestCancleView, PrintConfirmView, PrintFailView, AccessDocumentView
 from accounts.profile.profile_views import ProfileView, ProfileUpdateView
 from rest_framework_simplejwt.views import TokenRefreshView
+from accounts.audit_logs.audit_log_views import AuditLogListView
+from accounts.mfa.views import MFASetupView, MFAEnableView, MFADisableView, MFALoginVerifyView
+from accounts.Oauth.views import OAuthGoogleView, OAuthGithubLoginView
 
 urlpatterns = [
     path('auth/register/',RegisterView.as_view(),name='register'),
@@ -45,6 +48,16 @@ urlpatterns = [
     path('profile/',ProfileView.as_view(),name='profile'),
     path('profile/update/',ProfileUpdateView.as_view(),name='profile-update'),
     path('profile/change-password/',ChangePasswordView.as_view(),name='change-password'),
+
+    path('audit-logs/',AuditLogListView.as_view(),name='audit_logs'),
+
+    path('mfa/setup/',MFASetupView,name='mfa_setup'),
+    path('mfa/enable/',MFAEnableView.as_view(),name='mfa_enable'),
+    path('mfa/disable/',MFADisableView.as_view(),name='mfa_disable'),
+    path('mfa/login/verify/',MFALoginVerifyView.as_view(),name='mfa_login_verify'),
+
+    path('oauth/google/',OAuthGoogleView.as_view(),name='oauth_google'),
+    path('oauth/github/',OAuthGithubLoginView.as_view(),name='oauth_github'),
 
     ]
 
