@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from accounts.models import AuditLogs
 
-class AuditLogSerializer(serializers.Serializer):
+class AuditLogSerializer(serializers.ModelSerializer):
 
     created_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M', read_only=True)
 

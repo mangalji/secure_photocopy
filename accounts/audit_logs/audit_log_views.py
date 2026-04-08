@@ -17,4 +17,4 @@ class AuditLogListView(APIView):
 
         serializer = AuditLogSerializer(logs,many=True)
 
-        return Response(serializer.errors,status=status.HTTP_200_OK)
+        return Response(serializer.data,status=status.HTTP_200_OK)
