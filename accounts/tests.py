@@ -186,3 +186,12 @@ class OTPVerifyTest(TestCase):
     def test_wrong_email(self):
         res = self.client.post(self.url, {'email': 'nobody@test.com', 'otp': self.raw_otp}, format='json')
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+class LoginTest(TestCase):
+    
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('login')
+        self.user = make_user('login@test.com','1928374650')
+
+    
