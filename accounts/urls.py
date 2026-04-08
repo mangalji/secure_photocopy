@@ -3,7 +3,7 @@ from accounts.auth.auth_views import RegisterView, LoginView, LogoutView
 from accounts.shop.shop_views import ShopRegisterView, ShopListView, ShopDetailView, ShopUpdateView, ShopDeleteView
 from accounts.document.document_views import DocumentUploadView, DocumentListView, DocumentDeleteView
 from accounts.password.resetpassword_views import ForgotPasswordView, ResetPasswordView, ChangePasswordView
-from accounts.notification.notification_views import NotificationListView, NotificationMarkReadView, NotificationMarkAllReadView
+from accounts.notification.notification_views import NotificationListView, NotificationMarkReadView, NotificationMarkAllReadView, NotificationReadView
 from accounts.otp.otp_views import VerifyRegisterOTPView, VerifyLoginOTPView, ResendOTPView
 from accounts.print.print_views import PrintRequestCreateView, PrintRequestListView, PrintRequestCancleView, PrintConfirmView, PrintFailView, AccessDocumentView
 from accounts.profile.profile_views import ProfileView, ProfileUpdateView
@@ -35,19 +35,20 @@ urlpatterns = [
 
     path('print-requests/lists/',PrintRequestListView.as_view(),name='print_request_list'),
     path('print-requests/create/',PrintRequestCreateView.as_view(),name='print_request_create'),
-    path('print-requests/<int:request_id>/cancel/',PrintRequestCancleView.as_view(),name='print_request_cancle'),
+    path('print-requests/<int:request_id>/cancel/',PrintRequestCancleView.as_view(),name='print_request_cancel'),
 
     path('print-sessions/access/',AccessDocumentView.as_view(),name='access_document'),
     path('print-sessions/<int:session_id>/confirm/',PrintConfirmView.as_view(),name='print_confirm'),
     path('print-sessions/<int:session_id>/fail/',PrintFailView.as_view(),name='print_fail'),
 
     path('notifications/list/', NotificationListView.as_view(), name='notification_list'),
-    path('notifications/mark-read/', NotificationMarkReadView.as_view(), name='notification_mark_read'),
-    path('notifications/mark-read-all/',NotificationMarkAllReadView.as_view(),name='notification-marked-all-read'),
+    path('notifications/<int:notification_id>/read/', NotificationReadView.as_view(), name='notification_read'),
+    path('notifications/<int:notification_id>/mark-read/', NotificationMarkReadView.as_view(), name='notification_mark_read'),
+    path('notifications/mark-read-all/',NotificationMarkAllReadView.as_view(),name='notification_marked_all_read'),
 
     path('profile/',ProfileView.as_view(),name='profile'),
-    path('profile/update/',ProfileUpdateView.as_view(),name='profile-update'),
-    path('profile/change-password/',ChangePasswordView.as_view(),name='change-password'),
+    path('profile/update/',ProfileUpdateView.as_view(),name='profile_update'),
+    path('profile/change-password/',ChangePasswordView.as_view(),name='change_password'),
 
     path('audit-logs/',AuditLogListView.as_view(),name='audit_logs'),
 
