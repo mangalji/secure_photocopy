@@ -130,7 +130,7 @@ class ChangePasswordView(APIView):
 
         if not serializer.is_valid():
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-        
+
         data = serializer.validated_data
         user = request.user
 
@@ -140,7 +140,15 @@ class ChangePasswordView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+
         user.set_password(data['new_password'])
+
+        if data['new_password'] != data['confirm_password']:
+            return Response(
+                {"error":"both passwords are mismatch."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         user.save(update_fields=['password'])
 
         return Response(

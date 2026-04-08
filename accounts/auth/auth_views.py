@@ -23,15 +23,19 @@ class RegisterView(APIView):
 
     def post(self,request):
         
+        email = request.data.get('email')
+        phone = request.data.get('phone')
+        User.objects.filter(email=email,is_active=False).delete()
+        User.objects.filter(phone=phone,is_active=False).delete()
+        
         serializer = RegisterSerializer(data=request.data)
         
         if not serializer.is_valid():
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)  
         
-        email = serializer.validated_data['email']
-        phone = serializer.validated_data['phone']
-        User.objects.filter(email=email,is_active=False).delete()
-        User.objects.filter(phone=phone,is_active=False).delete()
+        if User.objects.filter(phone=request.data['phone']).exists():
+            return Response({"error":"phone number is already exists."},
+            status=status.HTTP_400_BAD_REQUEST)
 
         user = serializer.save()
 

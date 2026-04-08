@@ -3,7 +3,7 @@ from accounts.models import Shops
 
 class ShopsSerializer(serializers.ModelSerializer):
     
-    created_at = serializers.DateField(read_only=True,source='created_at.date')
+    created_at = serializers.SerializerMethodField()
     shopkeeper_name = serializers.CharField(source='shopkeeper.full_name',read_only=True)
 
     class Meta:
@@ -20,3 +20,6 @@ class ShopsSerializer(serializers.ModelSerializer):
             'is_active',
             'created_at']
         read_only_fields = ['id','is_active','created_at']
+    
+    def get_created_at(self,obj):
+        return obj.created_at.date().isoformat()

@@ -23,13 +23,22 @@ class NotificationListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class NotificationReadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, notification_id):
+        try:
+            notification = Notification.objects.get(id=notification_id, user=request.user)
+        except Notification.DoesNotExist:
+            return Response({'error': 'Notification not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(NotificationSerializer(notification).data, status=status.HTTP_200_OK)
+
+
 class NotificationMarkReadView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request,):
-        notification_id = request.data.get('notification_id')
-        if not notification_id:
-            return Response({'error': 'notification_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request,notification_id):
 
         try:
             notification = Notification.objects.get(id=notification_id, user=request.user)
@@ -46,12 +55,12 @@ class NotificationMarkAllReadView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self,request):
-        notification_id = request.data.get('notification_id')
-        if not notification_id:
-            return Response(
-                {"error":"notification id is required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # notification_id = request.data.get('notification_id')
+        # if not notification_id:
+        #     return Response(
+        #         {"error":"notification id is required."},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
         Notification.objects.filter(
             user = request.user,
             is_read = False

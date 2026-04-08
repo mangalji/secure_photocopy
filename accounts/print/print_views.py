@@ -57,7 +57,7 @@ class PrintRequestCreateView(APIView):
             consumer = request.user,
             shop = shop,
             document = document,
-            print_copies = data['print_copies'],
+            total_copies = data['print_copies'],
             print_color = data['print_color'],
             token_expires_at = token_expires_at,
             expires_at = token_expires_at,
@@ -120,14 +120,8 @@ class PrintRequestCancleView(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    def post(self,request):
+    def post(self,request,request_id):
 
-        request_id = request.data.get('request_id')
-        if not request_id:
-            return Response(
-                {'error':'request_id is required.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
         try:
             print_request = PrintRequest.objects.get(
                 id = request_id,
@@ -166,6 +160,12 @@ class AccessDocumentView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         serializer = TokenAccessSerializer(data=request.data)
+
+        # if token.is_expired():
+        #     return Response(
+        #         {"error":"your session is expired"},
+        #         status=status.HTTP_410_GONE
+        #     )
 
         if not serializer.is_valid():
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
@@ -247,6 +247,8 @@ class AccessDocumentView(APIView):
 
 class PrintConfirmView(APIView):
 
+    permission_classes = [IsAuthenticated]
+
     def post(self,request,session_id):
 
         if request.user.role != 'shopkeeper':
@@ -297,17 +299,20 @@ class PrintConfirmView(APIView):
 
         file_path = os.path.join(
             settings.MEDIA_ROOT,
-            document.encrypted_storage_ref  
+            document.encrypted_storage_ref
         )
         if os.path.exists(file_path):
-            os.remove(file_path)
+            try:
+                os.remove(file_path)
+            except OSError:
+                pass
 
         document.is_deleted = True
         document.deleted_at = now
         document.save(update_fields=['is_deleted','deleted_at'])
 
         return Response(
-            {"message":"print condirmed, document deleted successfully"},
+            {"message":"Print confirmed and document deleted successfully."},
             status=status.HTTP_200_OK
         )
 
