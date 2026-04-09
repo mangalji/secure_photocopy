@@ -8,7 +8,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from accounts.models import CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 User = CustomUser
 
 class OAuthGoogleView(APIView):
@@ -37,8 +40,8 @@ class OAuthGoogleView(APIView):
             'https://oauth2.googleapis.com/token',
             data={
                 'code':code,
-                'client_id':'client_id',
-                'client_secret':'client secret',
+                'client_id':os.environ.get("CLIENT_SECRET_ID"),
+                'client_secret':os.environ.get("CLIENT_SECRET_KEY"),
                 'redirect_uri':redirect_uri,
                 'grant_type':'auth_code',
             }

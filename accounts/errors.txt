@@ -1,0 +1,164 @@
+python3 manage.py test
+Found 76 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+..........F.....F..F.......F.FF......F...............F.....F......E....F....
+======================================================================
+ERROR: test_list_shops_returns_active_only (accounts.tests.ShopTest.test_list_shops_returns_active_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/backends/mysql/base.py", line 78, in execute
+    return self.cursor.execute(query, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/MySQLdb/cursors.py", line 179, in execute
+    res = self._query(mogrified_query)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/MySQLdb/cursors.py", line 330, in _query
+    db.query(q)
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/MySQLdb/connections.py", line 286, in query
+    _mysql.connection.query(self, query)
+MySQLdb.IntegrityError: (1062, "Duplicate entry '' for key 'shops.shop_license_no'")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/accounts/tests.py", line 320, in test_list_shops_returns_active_only
+    shop2 = Shops.objects.create(
+            ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/models/query.py", line 669, in create
+    obj.save(force_insert=True, using=self.db)
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/models/base.py", line 874, in save
+    self.save_base(
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/models/base.py", line 966, in save_base
+    updated = self._save_table(
+              ^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/models/base.py", line 1169, in _save_table
+    results = self._do_insert(
+              ^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/models/base.py", line 1220, in _do_insert
+    return manager._insert(
+           ^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/models/query.py", line 1918, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1925, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/django/db/backends/mysql/base.py", line 78, in execute
+    return self.cursor.execute(query, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/MySQLdb/cursors.py", line 179, in execute
+    res = self._query(mogrified_query)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/MySQLdb/cursors.py", line 330, in _query
+    db.query(q)
+  File "/home/raj/Desktop/django_tut/photocopy_project/env/lib/python3.12/site-packages/MySQLdb/connections.py", line 286, in query
+    _mysql.connection.query(self, query)
+django.db.utils.IntegrityError: (1062, "Duplicate entry '' for key 'shops.shop_license_no'")
+
+======================================================================
+FAIL: test_reset_password_success (accounts.tests.ForgotPasswordTest.test_reset_password_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/accounts/tests.py", line 261, in test_reset_password_success
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+AssertionError: 400 != 200
+
+======================================================================
+FAIL: test_cannot_read_other_users_notification (accounts.tests.NotificationTest.test_cannot_read_other_users_notification)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/accounts/tests.py", line 670, in test_cannot_read_other_users_notification
+    self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+AssertionError: 400 != 404
+
+======================================================================
+FAIL: test_mark_single_read (accounts.tests.NotificationTest.test_mark_single_read)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/accounts/tests.py", line 647, in test_mark_single_read
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+AssertionError: 400 != 200
+
+======================================================================
+FAIL: test_cancel_pending_request (accounts.tests.PrintRequestTest.test_cancel_pending_request)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/accounts/tests.py", line 491, in test_cancel_pending_request
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+AssertionError: 400 != 200
+
+======================================================================
+FAIL: test_cannot_use_another_users_document (accounts.tests.PrintRequestTest.test_cannot_use_another_users_document)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/accounts/tests.py", line 471, in test_cannot_use_another_users_document
+    self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+AssertionError: 400 != 404
+
+======================================================================
+FAIL: test_consumer_can_create_request (accounts.tests.PrintRequestTest.test_consumer_can_create_request)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/accounts/tests.py", line 453, in test_consumer_can_create_request
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+AssertionError: 400 != 201
+
+======================================================================
+FAIL: test_expired_token_returns_410 (accounts.tests.PrintSessionTest.test_expired_token_returns_410)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/accounts/tests.py", line 544, in test_expired_token_returns_410
+    self.assertEqual(response.status_code, status.HTTP_410_GONE)
+AssertionError: 404 != 410
+
+======================================================================
+FAIL: test_duplicate_phone_blocked (accounts.tests.RegistrationTestCase.test_duplicate_phone_blocked)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/accounts/tests.py", line 129, in test_duplicate_phone_blocked
+    self.assertEqual(response.status_code,status.HTTP_400_BAD_REQUEST)
+AssertionError: 201 != 400
+
+======================================================================
+FAIL: test_unverified_email_allows_reregister (accounts.tests.RegistrationTestCase.test_unverified_email_allows_reregister)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/accounts/tests.py", line 109, in test_unverified_email_allows_reregister
+    self.assertEqual(response.status_code,status.HTTP_201_CREATED)
+AssertionError: 400 != 201
+
+======================================================================
+FAIL: test_shopkeeper_creates_shop (accounts.tests.ShopTest.test_shopkeeper_creates_shop)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/raj/Desktop/django_tut/photocopy_project/accounts/tests.py", line 306, in test_shopkeeper_creates_shop
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+AssertionError: 400 != 201
+
+----------------------------------------------------------------------
+Ran 76 tests in 186.149s
+
+FAILED (failures=10, errors=1)
+Destroying test database for alias 'default'...
