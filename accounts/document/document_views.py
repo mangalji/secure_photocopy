@@ -31,6 +31,12 @@ class DocumentUploadView(APIView):
 
         file = serializer.validated_data['file']
 
+        if not file:
+            return Response(
+                {"error":"not file provided."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         upload_folder = os.path.join(settings.MEDIA_ROOT,'documents',str(request.user.user_id))
         os.makedirs(upload_folder,exist_ok=True)
 
