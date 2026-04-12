@@ -17,6 +17,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 User = CustomUser
 
+# this view is for register the user
 class RegisterView(APIView):
 
     permission_classes = [AllowAny]
@@ -71,6 +72,7 @@ class RegisterView(APIView):
             status=status.HTTP_201_CREATED
         )
 
+# this is view is for login the user
 class LoginView(APIView):
 
     permission_classes = [AllowAny]
@@ -132,6 +134,7 @@ class LoginView(APIView):
             'email':user.email,
         },status=status.HTTP_200_OK)
 
+# this view logout the user account
 class LogoutView(APIView):
 
     permission_classes = [IsAuthenticated]
