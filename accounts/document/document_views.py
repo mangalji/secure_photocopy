@@ -74,6 +74,7 @@ class DocumentUploadView(APIView):
             file_hash = file_hash,
             file_size_mb = file_size,
             encrypted_storage_ref = relative_path,
+            encryption_key_ref = '',
         )
 
         return Response(
