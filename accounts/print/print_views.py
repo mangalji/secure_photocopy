@@ -210,7 +210,7 @@ class AccessDocumentView(APIView):
                 message=f'Your print request #{print_request.id} is being printed by {request.user.full_name}.',
             )
 
-            ip = (request.META.get('HTTP_X_FORWARDED_FOR','').split(',')[0].strip() or request.META.get('REMOTE_ADDR'))
+            ip = request.META.get('REMOTE_ADDR')
             ua = request.META.get('HTTP_USER_AGENT','')
 
             session = PrintSession.objects.create(

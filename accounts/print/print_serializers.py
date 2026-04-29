@@ -11,12 +11,12 @@ class PrintRequestCreateSerializer(serializers.Serializer):
     print_color = serializers.ChoiceField(choices= PrintRequest.PrintColor.choices,default = PrintRequest.PrintColor.BLACK_WHITE)
     expiry_minutes = serializers.ChoiceField(choices=[15,30,60],default = 30)
 
-    def validate_shop(self,value):
+    def validate_shop_id(self,value):
         if not Shops.objects.filter(id=value,is_active=True).exists():
             raise serializers.ValidationError('shop not found or inactive')
         return value
     
-    def validate_document(self,value):
+    def validate_document_id(self,value):
         if not Document.objects.filter(id=value,is_deleted=False).exists():
             raise serializers.ValidationError("document not found or deleted.")
         return value

@@ -37,10 +37,19 @@ class DocumentUploadView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        if file.size > 10 * 1024 * 1024:
+            return Response(
+                {"error": "File size exceeds the 10MB limit."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         upload_folder = os.path.join(settings.MEDIA_ROOT,'documents',str(request.user.user_id))
         os.makedirs(upload_folder,exist_ok=True)
 
-        file_path = os.path.join(upload_folder,file.name)
+        import uuid
+        ext = os.path.splitext(file.name)[1]
+        safe_filename = f"{uuid.uuid4().hex}{ext}"
+        file_path = os.path.join(upload_folder, safe_filename)
 
         with open(file_path,'wb+') as location:
             for chunk in file.chunks():
@@ -55,7 +64,7 @@ class DocumentUploadView(APIView):
         file_size = round(file.size/(1024*1024),2)
 
         relative_path = os.path.join(
-            'documents',str(request.user.user_id),file.name
+            'documents',str(request.user.user_id),safe_filename
         )
 
         document = Document.objects.create(
@@ -64,6 +73,7 @@ class DocumentUploadView(APIView):
             doc_type = file.content_type,
             file_hash = file_hash,
             file_size_mb = file_size,
+            encrypted_storage_ref = relative_path,
         )
 
         return Response(

@@ -10,12 +10,12 @@ class DocumentUploadSerializer(serializers.Serializer):
         if file.content_type not in allowed_types:
             raise serializers.ValidationError("only pdfs and images are allowed.") 
 
-        max_size = 100 * 1024 * 1024
+        max_size = 10 * 1024 * 1024
         if file.size > max_size:
             raise serializers.ValidationError(
-                'file must be not exceeded 100mb.'
+                'file must be not exceeded 10mb.'
             )
-            return file
+        return file
         
 class DocumentListSerializer(serializers.ModelSerializer):
 

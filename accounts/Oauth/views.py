@@ -54,7 +54,7 @@ class OAuthGoogleView(APIView):
         token_data = token_response.json()
         access_token = token_data.get('access_token')
 
-        user_info_response = request.get(
+        user_info_response = requests.get(
             'https://www.googleapis.com/oauth2/v2/userinfo',
             headers = {'Authorization':f'Bearer {access_token}'}
         )
@@ -124,7 +124,7 @@ class OAuthGithubLoginView(APIView):
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         code = serializer.validated_data['code']
 
-        token_response = request.post(
+        token_response = requests.post(
             'https://github.com/login/oauth/access_token',
             headers = {'Accept':'application/json'},
             data={
@@ -163,7 +163,7 @@ class OAuthGithubLoginView(APIView):
             )
         
         github_id = str(user_info.get('id'))
-        full_name = user_info.grt('name') or user_info.get('login','')
+        full_name = user_info.get('name') or user_info.get('login','')
 
         oauth_connection = OAuthConnection.objects.filter(
             provider = OAuthConnection.Provider.GITHUB,

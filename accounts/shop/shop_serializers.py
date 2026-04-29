@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from accounts.models import Shops
+import re
 
 class ShopsSerializer(serializers.ModelSerializer):
     
@@ -23,3 +24,8 @@ class ShopsSerializer(serializers.ModelSerializer):
     
     def get_created_at(self,obj):
         return obj.created_at.date().isoformat()
+        
+    def validate_shop_phone(self, value):
+        if value and not re.match(r"^\+?1?\d{9,15}$", value):
+            raise serializers.ValidationError("Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+        return value.strip() if value else value
